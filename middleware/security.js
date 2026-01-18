@@ -2,7 +2,7 @@
  * ============================================================================
  * SECURITY MIDDLEWARE - Production-Grade Security Configuration
  * ============================================================================
- * 
+ *
  * This module implements comprehensive security measures for the API including:
  * - Rate limiting to prevent abuse and DDoS attacks
  * - Request validation and sanitization
@@ -11,21 +11,21 @@
  * - Custom HPP (HTTP Parameter Pollution) prevention (Express 5.x compatible)
  * - SQL injection pattern detection
  * - Request auditing
- * 
+ *
  * IMPORTANT: This module uses CUSTOM implementations of XSS and HPP protection
  * instead of xss-clean and hpp packages, which are incompatible with Express 5.x.
  * These custom implementations are fully compatible and provide equivalent security.
- * 
+ *
  * @module middleware/security
  * @requires express-rate-limit
  * @requires helmet
  * @version 2.0.0
- * 
+ *
  * ============================================================================
  */
 
-import rateLimit from 'express-rate-limit';
-import helmet from 'helmet';
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 
 // ============================================================================
 // RATE LIMITING CONFIGURATION
@@ -41,19 +41,20 @@ export const apiLimiter = rateLimit({
   max: 100, // Limit each IP to 100 requests per windowMs
   message: {
     success: false,
-    message: 'Too many requests from this IP, please try again after 15 minutes',
-    retryAfter: '15 minutes'
+    message:
+      "Too many requests from this IP, please try again after 15 minutes",
+    retryAfter: "15 minutes",
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   // Skip rate limiting for certain IPs (optional - for internal services)
   skip: (req) => {
     // Example: Skip rate limiting for localhost in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       return false; // Apply rate limiting even in development
     }
     return false;
-  }
+  },
 });
 
 /**
@@ -66,12 +67,12 @@ export const authLimiter = rateLimit({
   max: 5, // Limit each IP to 5 requests per windowMs
   message: {
     success: false,
-    message: 'Too many login attempts, please try again after 15 minutes',
-    retryAfter: '15 minutes'
+    message: "Too many login attempts, please try again after 15 minutes",
+    retryAfter: "15 minutes",
   },
   standardHeaders: true,
   legacyHeaders: false,
-  skipSuccessfulRequests: true // Don't count successful auth requests
+  skipSuccessfulRequests: true, // Don't count successful auth requests
 });
 
 /**
@@ -84,11 +85,11 @@ export const paymentLimiter = rateLimit({
   max: 20, // Limit each IP to 20 payment requests per hour
   message: {
     success: false,
-    message: 'Too many payment requests, please try again after an hour',
-    retryAfter: '1 hour'
+    message: "Too many payment requests, please try again after an hour",
+    retryAfter: "1 hour",
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
 });
 
 /**
@@ -101,11 +102,11 @@ export const bookingLimiter = rateLimit({
   max: 10, // Limit each IP to 10 booking attempts per hour
   message: {
     success: false,
-    message: 'Too many booking attempts, please try again after an hour',
-    retryAfter: '1 hour'
+    message: "Too many booking attempts, please try again after an hour",
+    retryAfter: "1 hour",
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
 });
 
 // ============================================================================
@@ -127,38 +128,38 @@ export const helmetConfig = helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
-      imgSrc: ["'self'", 'data:', 'https:'],
+      imgSrc: ["'self'", "data:", "https:"],
       connectSrc: ["'self'"],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'none'"]
-    }
+      frameSrc: ["'none'"],
+    },
   },
   // Cross-Origin Resource Policy
-  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginResourcePolicy: { policy: "cross-origin" },
   // DNS Prefetch Control
   dnsPrefetchControl: { allow: false },
   // Expect-CT header
   expectCt: { maxAge: 86400 },
   // Frameguard to prevent clickjacking
-  frameguard: { action: 'deny' },
+  frameguard: { action: "deny" },
   // Hide powered by Express
   hidePoweredBy: true,
   // HTTP Strict Transport Security
   hsts: {
     maxAge: 31536000, // 1 year
     includeSubDomains: true,
-    preload: true
+    preload: true,
   },
   // IE No Open
   ieNoOpen: true,
   // Don't sniff mimetype
   noSniff: true,
   // Referrer Policy
-  referrerPolicy: { policy: 'no-referrer' },
+  referrerPolicy: { policy: "no-referrer" },
   // XSS Filter
-  xssFilter: true
+  xssFilter: true,
 });
 
 // ============================================================================
@@ -178,26 +179,28 @@ export const xssProtection = (req, res, next) => {
      * @returns {string} - Sanitized string
      */
     const sanitizeValue = (value) => {
-      if (typeof value !== 'string') return value;
-      
-      return value
-        // Remove script tags
-        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-        // Remove iframe tags
-        .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-        // Remove object tags
-        .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
-        // Remove embed tags
-        .replace(/<embed\b[^<]*>/gi, '')
-        // Remove on* event handlers
-        .replace(/\son\w+\s*=\s*["'][^"']*["']/gi, '')
-        .replace(/\son\w+\s*=\s*[^\s>]*/gi, '')
-        // Remove javascript: protocol
-        .replace(/javascript:/gi, '')
-        // Remove data: protocol from suspicious contexts
-        .replace(/<[^>]*data:text\/html[^>]*>/gi, '')
-        // Trim whitespace
-        .trim();
+      if (typeof value !== "string") return value;
+
+      return (
+        value
+          // Remove script tags
+          .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+          // Remove iframe tags
+          .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
+          // Remove object tags
+          .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, "")
+          // Remove embed tags
+          .replace(/<embed\b[^<]*>/gi, "")
+          // Remove on* event handlers
+          .replace(/\son\w+\s*=\s*["'][^"']*["']/gi, "")
+          .replace(/\son\w+\s*=\s*[^\s>]*/gi, "")
+          // Remove javascript: protocol
+          .replace(/javascript:/gi, "")
+          // Remove data: protocol from suspicious contexts
+          .replace(/<[^>]*data:text\/html[^>]*>/gi, "")
+          // Trim whitespace
+          .trim()
+      );
     };
 
     /**
@@ -207,12 +210,12 @@ export const xssProtection = (req, res, next) => {
      */
     const sanitizeObject = (obj) => {
       if (obj === null || obj === undefined) return obj;
-      
+
       if (Array.isArray(obj)) {
-        return obj.map(item => sanitizeObject(item));
+        return obj.map((item) => sanitizeObject(item));
       }
-      
-      if (typeof obj === 'object' && obj.constructor === Object) {
+
+      if (typeof obj === "object" && obj.constructor === Object) {
         const sanitized = {};
         for (const key in obj) {
           if (obj.hasOwnProperty(key)) {
@@ -221,21 +224,21 @@ export const xssProtection = (req, res, next) => {
         }
         return sanitized;
       }
-      
-      if (typeof obj === 'string') {
+
+      if (typeof obj === "string") {
         return sanitizeValue(obj);
       }
-      
+
       return obj;
     };
 
     // Sanitize request body (create new object to avoid read-only property issues)
-    if (req.body && typeof req.body === 'object') {
+    if (req.body && typeof req.body === "object") {
       req.body = sanitizeObject(req.body);
     }
 
     // Sanitize query params (create new object)
-    if (req.query && typeof req.query === 'object') {
+    if (req.query && typeof req.query === "object") {
       const sanitizedQuery = {};
       for (const key in req.query) {
         if (Object.prototype.hasOwnProperty.call(req.query, key)) {
@@ -243,16 +246,16 @@ export const xssProtection = (req, res, next) => {
         }
       }
       // Use defineProperty to override the read-only getter
-      Object.defineProperty(req, 'query', {
+      Object.defineProperty(req, "query", {
         value: sanitizedQuery,
         writable: true,
         enumerable: true,
-        configurable: true
+        configurable: true,
       });
     }
 
     // Sanitize URL params
-    if (req.params && typeof req.params === 'object') {
+    if (req.params && typeof req.params === "object") {
       const sanitizedParams = {};
       for (const key in req.params) {
         if (req.params.hasOwnProperty(key)) {
@@ -264,7 +267,7 @@ export const xssProtection = (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error('XSS Protection Error:', error);
+    console.error("XSS Protection Error:", error);
     // Continue even if sanitization fails
     next();
   }
@@ -283,7 +286,7 @@ export const xssProtection = (req, res, next) => {
 export const hppProtection = (req, res, next) => {
   try {
     // Whitelist of parameters that are allowed to be arrays
-    const whitelist = ['filter', 'sort', 'fields', 'amenities', 'tags'];
+    const whitelist = ["filter", "sort", "fields", "amenities", "tags"];
 
     /**
      * Deduplicate parameters - keep only last value unless whitelisted
@@ -291,14 +294,14 @@ export const hppProtection = (req, res, next) => {
      * @returns {Object} - Deduplicated parameters
      */
     const deduplicateParams = (params) => {
-      if (!params || typeof params !== 'object') return params;
-      
+      if (!params || typeof params !== "object") return params;
+
       const deduplicated = {};
-      
+
       for (const key in params) {
         if (Object.prototype.hasOwnProperty.call(params, key)) {
           const value = params[key];
-          
+
           // If it's an array and not whitelisted, keep only the last value
           if (Array.isArray(value) && !whitelist.includes(key)) {
             deduplicated[key] = value[value.length - 1];
@@ -307,29 +310,29 @@ export const hppProtection = (req, res, next) => {
           }
         }
       }
-      
+
       return deduplicated;
     };
 
     // Protect query parameters
-    if (req.query && typeof req.query === 'object') {
+    if (req.query && typeof req.query === "object") {
       const deduplicated = deduplicateParams(req.query);
-      Object.defineProperty(req, 'query', {
+      Object.defineProperty(req, "query", {
         value: deduplicated,
         writable: true,
         enumerable: true,
-        configurable: true
+        configurable: true,
       });
     }
 
     // Protect body parameters
-    if (req.body && typeof req.body === 'object') {
+    if (req.body && typeof req.body === "object") {
       req.body = deduplicateParams(req.body);
     }
 
     next();
   } catch (error) {
-    console.error('HPP Protection Error:', error);
+    console.error("HPP Protection Error:", error);
     // Continue even if deduplication fails
     next();
   }
@@ -353,7 +356,7 @@ export const sanitizeRequest = (req, res, next) => {
       /(\bINSERT\b.*\bINTO\b)/gi,
       /(\bDELETE\b.*\bFROM\b)/gi,
       /(\bDROP\b.*\bTABLE\b)/gi,
-      /(\bUPDATE\b.*\bSET\b)/gi
+      /(\bUPDATE\b.*\bSET\b)/gi,
     ];
 
     /**
@@ -362,8 +365,8 @@ export const sanitizeRequest = (req, res, next) => {
      * @returns {boolean} - True if suspicious
      */
     const hasSqlInjection = (value) => {
-      if (typeof value !== 'string') return false;
-      return sqlPatterns.some(pattern => pattern.test(value));
+      if (typeof value !== "string") return false;
+      return sqlPatterns.some((pattern) => pattern.test(value));
     };
 
     /**
@@ -372,36 +375,40 @@ export const sanitizeRequest = (req, res, next) => {
      * @returns {boolean} - True if valid
      */
     const validateData = (data) => {
-      if (!data || typeof data !== 'object') return true;
-      
+      if (!data || typeof data !== "object") return true;
+
       for (const key in data) {
         if (Object.prototype.hasOwnProperty.call(data, key)) {
           const value = data[key];
-          
-          if (typeof value === 'string' && hasSqlInjection(value)) {
+
+          if (typeof value === "string" && hasSqlInjection(value)) {
             return false;
           }
-          
-          if (typeof value === 'object' && !validateData(value)) {
+
+          if (typeof value === "object" && !validateData(value)) {
             return false;
           }
         }
       }
-      
+
       return true;
     };
 
     // Validate all request data
-    if (!validateData(req.body) || !validateData(req.query) || !validateData(req.params)) {
+    if (
+      !validateData(req.body) ||
+      !validateData(req.query) ||
+      !validateData(req.params)
+    ) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid request data detected'
+        message: "Invalid request data detected",
       });
     }
 
     next();
   } catch (error) {
-    console.error('Request Sanitization Error:', error);
+    console.error("Request Sanitization Error:", error);
     next();
   }
 };
@@ -419,40 +426,40 @@ export const corsOptions = {
   // List of allowed origins
   origin: (origin, callback) => {
     // Parse FRONTEND_URL which can be comma-separated for multiple origins
-    const frontendUrls = process.env.FRONTEND_URL 
-      ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+    const frontendUrls = process.env.FRONTEND_URL
+      ? process.env.FRONTEND_URL.split(",").map((url) => url.trim())
       : [];
-    
+
     const allowedOrigins = [
       ...frontendUrls,
-      'http://localhost:5173',
-      'http://localhost:3000'
+      "http://localhost:5173",
+      "http://localhost:3000",
     ].filter(Boolean); // Remove undefined/empty values
 
-    // In production, also allow Vercel preview deployments
-    const isVercelPreview = origin && origin.includes('.vercel.app');
-    const isAllowed = !origin || allowedOrigins.indexOf(origin) !== -1 || 
-                      (process.env.NODE_ENV === 'production' && isVercelPreview);
+    // Allow Vercel deployments in any environment
+    const isVercelPreview = origin && origin.includes(".vercel.app");
+    const isAllowed =
+      !origin || allowedOrigins.indexOf(origin) !== -1 || isVercelPreview;
 
     if (isAllowed) {
       callback(null, true);
     } else {
       console.warn(`CORS blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error("Not allowed by CORS"));
     }
   },
   // Allowed HTTP methods
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   // Allowed headers
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ["Content-Type", "Authorization"],
   // Expose headers
-  exposedHeaders: ['RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset'],
+  exposedHeaders: ["RateLimit-Limit", "RateLimit-Remaining", "RateLimit-Reset"],
   // Allow credentials (cookies, authorization headers)
   credentials: true,
   // Preflight cache duration
   maxAge: 86400, // 24 hours
   // Success status for preflight
-  optionsSuccessStatus: 204
+  optionsSuccessStatus: 204,
 };
 
 // ============================================================================
@@ -470,17 +477,18 @@ export const auditLogger = (req, res, next) => {
     method: req.method,
     path: req.path,
     ip: req.ip || req.connection.remoteAddress,
-    userAgent: req.get('user-agent'),
+    userAgent: req.get("user-agent"),
     // Don't log sensitive data
-    body: req.body && !req.path.includes('login') && !req.path.includes('payment')
-      ? JSON.stringify(req.body).substring(0, 100)
-      : '[REDACTED]'
+    body:
+      req.body && !req.path.includes("login") && !req.path.includes("payment")
+        ? JSON.stringify(req.body).substring(0, 100)
+        : "[REDACTED]",
   };
 
   // In production, send this to a proper logging service
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     // TODO: Integrate with logging service (e.g., Winston, Loggly, etc.)
-    console.log('AUDIT:', JSON.stringify(logData));
+    console.log("AUDIT:", JSON.stringify(logData));
   }
 
   next();
@@ -496,7 +504,7 @@ export const auditLogger = (req, res, next) => {
  */
 export const handleValidationErrors = (errors) => {
   const formattedErrors = {};
-  errors.forEach(error => {
+  errors.forEach((error) => {
     if (!formattedErrors[error.path]) {
       formattedErrors[error.path] = [];
     }
@@ -519,5 +527,5 @@ export default {
   sanitizeRequest,
   corsOptions,
   auditLogger,
-  handleValidationErrors
+  handleValidationErrors,
 };
