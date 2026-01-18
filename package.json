@@ -1,0 +1,41 @@
+{
+  "name": "sixerzone-turf-booking-backend",
+  "version": "1.0.0",
+  "description": "Backend API for SixerZone Turf Booking System with Razorpay payment integration",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "keywords": [
+    "turf-booking",
+    "razorpay",
+    "payment-gateway",
+    "express",
+    "rest-api"
+  ],
+  "author": "SixerZone",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.2.1",
+    "express-validator": "^7.3.1",
+    "helmet": "^8.1.0",
+    "hpp": "^0.2.3",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.16.3",
+    "pg-hstore": "^2.3.4",
+    "razorpay": "^2.9.6",
+    "sequelize": "^6.37.7",
+    "xss-clean": "^0.1.4"
+  }
+}
