@@ -434,6 +434,8 @@ export const corsOptions = {
       ...frontendUrls,
       "http://localhost:5173",
       "http://localhost:3000",
+      "https://sixerzone.in",
+      "https://www.sixerzone.in",
     ].filter(Boolean); // Remove undefined/empty values
 
     // Allow Vercel deployments in any environment
@@ -529,3 +531,4 @@ export default {
   auditLogger,
   handleValidationErrors,
 };
+
